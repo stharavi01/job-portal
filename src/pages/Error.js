@@ -3,6 +3,7 @@ import img from "../assets/images/not-found.svg";
 import Wrapper from "../assets/wrappers/ErrorPage";
 
 const Error = () => {
+      const [values, setValues] = useState(initialState);
     return (
         <Wrapper className="full-page">
             <div>
