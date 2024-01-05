@@ -13,11 +13,7 @@ export const registerUser = createAsyncThunk(
             // Perform the API call or registration logic here
             console.log(`Register User: ${user}`);
             
-            // Replace the below with actual logic, this is just an example
-            // const response = await userService.register(user);
-            // return response.data;
-            
-            // For now, returning the user as a placeholder
+
             return user;
         } catch (error) {
             // Handle any errors here
