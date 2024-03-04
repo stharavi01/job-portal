@@ -207,16 +207,15 @@ ul {
 /* form */
 
 .form {
-  width: 90%;
+  width: 90vw;
   max-width: var(--fixed-width);
-  background: var(--light-gray);
+  background: var(--white);
   border-radius: var(--borderRadius);
-  box-shadow: var(--shadow-3);
-  padding: 2rem 3rem;
-  margin: 4rem auto;
+  box-shadow: var(--shadow-2);
+  padding: 2rem 2.5rem;
+  margin: 3rem auto;
   transition: var(--transition);
 }
-
 .form:hover {
   box-shadow: var(--shadow-4);
 }

@@ -1,82 +1,111 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { toast } from "react-toastify";
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { toast } from 'react-toastify';
+import {
+  addUserToLocalStorage,
+  getUserFromLocalStorage,
+  removeUserFromLocalStorage,
+} from '../../utils/localStorage';
+import {
+  loginUserThunk,
+  registerUserThunk,
+  updateUserThunk,
+  clearStoreThunk,
+} from './userThunk';
 
 const initialState = {
-    isLoading: false,
-    user: null,
+  isLoading: false,
+  isSidebarOpen: false,
+  user: getUserFromLocalStorage(),
 };
 
 export const registerUser = createAsyncThunk(
-    'user/registerUser',
-    async (user, thunkAPI) => {
-        try {
-            // Perform the API call or registration logic here
-            console.log(`Register User: ${user}`);
-            
-
-            return user;
-        } catch (error) {
-            // Handle any errors here
-            // You can dispatch an action to update the state with the error
-            console.error("Registration failed:", error);
-            toast.error("Registration failed!");
-            throw error; // Rethrow the error to be caught by the component
-        }
-    }
+  'user/registerUser',
+  async (user, thunkAPI) => {
+    return registerUserThunk('/auth/register', user, thunkAPI);
+  }
 );
 
 export const loginUser = createAsyncThunk(
-    'user/loginUser',
-    async (user, thunkAPI) => {
-        try {
-            // Perform the API call or login logic here
-            console.log(`Login User: ${user}`);
-            
-            // Replace the below with actual logic, this is just an example
-            // const response = await userService.login(user);
-            // return response.data;
-            
-            // For now, returning the user as a placeholder
-            return user;
-        } catch (error) {
-            // Handle any errors here
-            // You can dispatch an action to update the state with the error
-            console.error("Login failed:", error);
-            toast.error("Login failed!");
-            throw error; // Rethrow the error to be caught by the component
-        }
-    }
+  'user/loginUser',
+  async (user, thunkAPI) => {
+    return loginUserThunk('/auth/login', user, thunkAPI);
+  }
 );
 
+export const updateUser = createAsyncThunk(
+  'user/updateUser',
+  async (user, thunkAPI) => {
+    return updateUserThunk('/auth/updateUser', user, thunkAPI);
+  }
+);
+export const clearStore = createAsyncThunk('user/clearStore', clearStoreThunk);
 const userSlice = createSlice({
-    name: 'user',
-    initialState,
-    reducers: {
-        // You can define additional reducers here if needed
+  name: 'user',
+  initialState,
+  reducers: {
+    toggleSidebar: (state) => {
+      state.isSidebarOpen = !state.isSidebarOpen;
     },
-    extraReducers: (builder) => {
-        builder
-            .addCase(registerUser.pending, (state) => {
-                state.isLoading = true;
-            })
-            .addCase(registerUser.fulfilled, (state, action) => {
-                state.isLoading = false;
-                state.user = action.payload;
-            })
-            .addCase(registerUser.rejected, (state) => {
-                state.isLoading = false;
-            })
-            .addCase(loginUser.pending, (state) => {
-                state.isLoading = true;
-            })
-            .addCase(loginUser.fulfilled, (state, action) => {
-                state.isLoading = false;
-                state.user = action.payload;
-            })
-            .addCase(loginUser.rejected, (state) => {
-                state.isLoading = false;
-            });
+    logoutUser: (state, { payload }) => {
+      state.user = null;
+      state.isSidebarOpen = false;
+      removeUserFromLocalStorage();
+      if (payload) {
+        toast.success(payload);
+      }
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(registerUser.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(registerUser.fulfilled, (state, { payload }) => {
+        const { user } = payload;
+        state.isLoading = false;
+        state.user = user;
+        addUserToLocalStorage(user);
+        toast.success(`Hello There ${user.name}`);
+      })
+      .addCase(registerUser.rejected, (state, { payload }) => {
+        state.isLoading = false;
+        toast.error(payload);
+      })
+      .addCase(loginUser.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(loginUser.fulfilled, (state, { payload }) => {
+        const { user } = payload;
+        state.isLoading = false;
+        state.user = user;
+        addUserToLocalStorage(user);
+
+        toast.success(`Welcome Back ${user.name}`);
+      })
+      .addCase(loginUser.rejected, (state, { payload }) => {
+        state.isLoading = false;
+        toast.error(payload);
+      })
+      .addCase(updateUser.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(updateUser.fulfilled, (state, { payload }) => {
+        const { user } = payload;
+        state.isLoading = false;
+        state.user = user;
+        addUserToLocalStorage(user);
+
+        toast.success(`User Updated!`);
+      })
+      .addCase(updateUser.rejected, (state, { payload }) => {
+        state.isLoading = false;
+        toast.error(payload);
+      })
+      .addCase(clearStore.rejected, () => {
+        toast.error('There was an error..');
+      });
+  },
 });
 
+export const { toggleSidebar, logoutUser } = userSlice.actions;
 export default userSlice.reducer;
