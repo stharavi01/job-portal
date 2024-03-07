@@ -9,7 +9,7 @@ import {
   AllJobs,
   Stats,
   SharedLayout,
-} from './pages/dashboard';
+} from './pages/dashboard/';
 function App() {
   return (
     <BrowserRouter>
